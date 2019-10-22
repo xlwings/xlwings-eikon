@@ -13,11 +13,11 @@ def main():
     # Files
     template = xw.Book.caller()
     template_path = template.fullname
-    report_path = os.path.join(os.path.dirname(template_path), 'fund_report.xlsx')
+    report_path = os.path.join(os.path.dirname(template_path), 'report.xlsx')
 
     # Eikon
     conf = ConfigParser()
-    conf.read(os.path.join(os.path.dirname(template_path), '..', 'eikon.conf'))
+    conf.read(os.path.join(os.path.dirname(__file__), '..', 'eikon.conf'))
     ek.set_app_key(conf['eikon']['APP_KEY'])
 
     # Configuration
