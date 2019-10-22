@@ -1,12 +1,11 @@
 import os
-import pickle
 import datetime as dt
+from configparser import ConfigParser
+
+import numpy as np
+import eikon as ek
 import xlwings as xw
 from xlwings_reports import create_report  # not part of the open-source xlwings package
-import numpy as np
-import pandas as pd
-import eikon as ek
-from configparser import ConfigParser
 
 
 def main():
@@ -36,30 +35,28 @@ def main():
     perf_start_date = dt.datetime(now.year - 4, 1, 1)
 
     historical_perf = ek.get_timeseries(instrument,
-                             fields=['close'],
-                             start_date=perf_start_date,
-                             end_date=now,
-                             interval='weekly')
-
+                                        fields=['close'],
+                                        start_date=perf_start_date,
+                                        end_date=now,
+                                        interval='weekly')
     perf_end_date = historical_perf.index[-1]
 
     ret, err = ek.get_data(instrument, fields=['TR.IndexName', 'TR.IndexCalculationCurrency'])
     index_name = ret.loc[0, 'Index Name']
     currency = ret.loc[0, 'Calculation Currency']
 
-    constituents, err = ek.get_data(f'0#{instrument}', fields=['TR.CommonName', 'TR.PriceClose', 'TR.TotalReturnYTD'])
-
+    constituents, err = ek.get_data(f'0#{instrument}',
+                                    fields=['TR.CommonName', 'TR.PriceClose', 'TR.TotalReturnYTD'])
     constituents = constituents.set_index('Company Common Name')
+    # Add empty columns so it goes into the right Excel cells
     for i in range(0, 6):
         constituents.insert(loc=i, column='merged' + str(i), value=np.nan)
     constituents = constituents.drop(['Instrument'], axis=1)
-
     constituents = constituents.rename(columns={"YTD Total Return": "YTD %"})
 
     # Summary
-    summary, err = ek.get_data(instrument, ['TR.PriceClose', 'TR.Volume', 'TR.PriceLow', 'TR.PriceHigh'])
-
-
+    summary, err = ek.get_data(instrument,
+                               ['TR.PriceClose', 'TR.Volume', 'TR.PriceLow', 'TR.PriceHigh'])
 
     # Collect all data
     data = dict(
