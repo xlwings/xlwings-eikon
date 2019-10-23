@@ -30,6 +30,8 @@ def main():
 
     # Take mean and standard deviation from first 252 trading days
     trading_days = 252
+    if len(prices) < trading_days:
+        raise Exception('History must have at least 252 data points.')
     returns = np.log(prices[:trading_days] / prices[:trading_days].shift(1))
     mean = float(np.mean(returns) * trading_days)
     stdev = float(returns.std() * math.sqrt(trading_days))
@@ -37,7 +39,7 @@ def main():
     # Simulation parameters
     num_simulations = sheet.range('E3').options(numbers=int).value
     time = 1  # years
-    num_timesteps = trading_days
+    num_timesteps = len(pd.date_range(prices[:trading_days].index[-1], end_date, freq='B'))
     dt = time/num_timesteps  # Length of time period
     vol = stdev
     mu = mean  # Drift
@@ -57,7 +59,7 @@ def main():
         percentiles[t, :] = np.percentile(price[t, :], percentile_selection)
 
     # Turn into pandas DataFrame
-    index = pd.date_range(prices[:trading_days].index[-1], periods=trading_days, freq='B')
+    index = pd.date_range(prices[:trading_days].index[-1], end_date, freq='B')
     simulation = pd.DataFrame(data=percentiles, index=index,
                               columns=['5th Percentile', 'Median', '95th Percentile'])
 
