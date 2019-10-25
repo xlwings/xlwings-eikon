@@ -28,14 +28,13 @@ def main():
         fmt = '%e %b %Y'
 
     instrument = template.sheets['Config']['instrument'].value
-    now = dt.datetime.now()
-    start_date = dt.datetime(now.year - 4, 1, 1)
+    start_date = dt.datetime(dt.datetime.now().year - 4, 1, 1)
 
     # Prices
     prices = ek.get_timeseries(instrument,
                                fields=['close'],
                                start_date=start_date,
-                               end_date=now,
+                               end_date=dt.datetime.now(),
                                interval='weekly')
     end_date = prices.index[-1]
 
