@@ -17,7 +17,7 @@ def main():
 
     # Excel
     sheet = xw.Book.caller().sheets[0]
-    sheet.range('O1').expand().clear_contents()
+    sheet['O1'].expand().clear_contents()
     instrument = sheet['E5'].value
     start_date = sheet['E4'].value
     end_date = start_date + relativedelta(years=2)
@@ -28,7 +28,7 @@ def main():
                                start_date=start_date,
                                end_date=end_date)
 
-    # Take mean and standard deviation from first 252 trading days
+    # Take annualized mean and standard deviation from first 252 trading days
     trading_days = 252
     if len(prices) < trading_days:
         raise Exception('History must have at least 252 data points.')
@@ -37,7 +37,7 @@ def main():
     stdev = float(returns.std() * math.sqrt(trading_days))
 
     # Simulation parameters
-    num_simulations = sheet.range('E3').options(numbers=int).value
+    num_simulations = sheet['E3'].options(numbers=int).value
     time = 1  # years
     num_timesteps = len(pd.date_range(prices[:trading_days].index[-1], end_date, freq='B'))
     dt = time/num_timesteps  # Length of time period
@@ -55,15 +55,15 @@ def main():
     # Simulation at each time step (log normal distribution)
     for t in range(1, num_timesteps):
         rand_nums = np.random.randn(num_simulations)
-        price[t, :] = price[t-1, :] * np.exp((mu - 0.5 * vol**2) * dt + vol * rand_nums * np.sqrt(dt))
+        price[t, :] = price[t - 1, :] * np.exp((mu - 0.5 * vol**2) * dt + vol * rand_nums * np.sqrt(dt))
         percentiles[t, :] = np.percentile(price[t, :], percentile_selection)
 
     # Turn into pandas DataFrame
-    index = pd.date_range(prices[:trading_days].index[-1], end_date, freq='B')
-    simulation = pd.DataFrame(data=percentiles, index=index,
+    simulation = pd.DataFrame(data=percentiles,
+                              index=pd.date_range(prices[:trading_days].index[-1], end_date, freq='B'),
                               columns=['5th Percentile', 'Median', '95th Percentile'])
 
-    # Concat history and simulation and reorder cols
+    # Concat history & simulation and reorder cols
     combined = pd.concat([prices, simulation], axis=1)
     combined = combined[['5th Percentile', 'Median', '95th Percentile', 'CLOSE']]
     sheet['O1'].value = combined
