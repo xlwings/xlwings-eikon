@@ -18,7 +18,7 @@ ek.set_app_key(conf['eikon']['APP_KEY'])
 
 @xw.func
 # @xw.ret(expand='table')  # use this if your version of Excel doesn't have dynamic arrays
-def eikon_get_corr(rics, start_date=None, end_date=None, fields=None, interval='daily'):
+def get_corr_eikon(rics, start_date=None, end_date=None, fields=None, interval='daily'):
     if fields is None:
         fields = ['close']
     if start_date is None:
