@@ -5,7 +5,7 @@ from configparser import ConfigParser
 import numpy as np
 import eikon as ek
 import xlwings as xw
-from xlwings_reports import create_report  # not part of the open-source xlwings package
+from xlwings.reports import create_report  # part of xlwings PRO
 
 
 def main():
