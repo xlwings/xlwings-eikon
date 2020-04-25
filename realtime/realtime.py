@@ -9,6 +9,9 @@ import pandas as pd
 import eikon as ek
 import xlwings as xw
 
+import warnings
+warnings.filterwarnings("ignore")
+
 # Eikon setup
 conf = ConfigParser()
 conf.read(os.path.join(os.path.dirname(__file__), '..', 'eikon.conf'))
@@ -27,7 +30,7 @@ def main():
         with open(pid_file, 'r') as f:
             pid = f.read()
         try:
-            os.kill(int(pid), signal.SIGSTOP)
+            os.kill(int(pid), signal.SIGTERM)
             os.remove(pid_file)
         except ProcessLookupError as e:
             os.remove(pid_file)
