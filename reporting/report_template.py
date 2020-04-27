@@ -52,6 +52,7 @@ def main():
         constituents.insert(loc=i, column='merged' + str(i), value=np.nan)
     constituents = constituents.drop(['Instrument'], axis=1)
     constituents = constituents.rename(columns={"YTD Total Return": "YTD %"})
+    constituents = constituents.sort_values("YTD %", ascending=False)
 
     # Collect data
     data = dict(
