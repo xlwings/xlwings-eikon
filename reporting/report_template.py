@@ -69,8 +69,14 @@ def main():
     )
 
     # Create the Excel report
-    wb = create_report(template.fullname, report_path, **data)
+    app = template.app
+    app.screen_updating = False
 
+    wb = create_report(template.fullname,
+                       report_path, app=app, **data)
+
+    app.screen_updating = True
+    wb.sheets.active["A1"].select()
 
 if __name__ == '__main__':
     # This part is to run the script directly from Python, not via Excel
