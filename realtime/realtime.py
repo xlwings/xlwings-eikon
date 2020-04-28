@@ -21,34 +21,16 @@ ek.set_app_key(conf['eikon']['APP_KEY'])
 def main():
     sheet = xw.Book.caller().sheets[0]
     rng = sheet['A2'].expand()
-    tickers, fields = rng[1:, 0].value, rng[0, 1:].value
-    df, err = ek.get_data(tickers, fields)
+    instruments, fields = rng[1:, 0].value, rng[0, 1:].value
+    streaming_prices = ek.StreamingPrices(instruments=instruments, fields=fields)
+    streaming_prices.open()
 
-    pid_file = Path(__file__).resolve().parent / "pid"
-    if pid_file.exists():
-        # Stop server
-        with open(pid_file, 'r') as f:
-            pid = f.read()
-        try:
-            os.kill(int(pid), signal.SIGTERM)
-            os.remove(pid_file)
-        except ProcessLookupError as e:
-            os.remove(pid_file)
-        finally:
-            sheet['C1'].value = 'stopped'
-    else:
-        # Start server
-        with open(pid_file, 'w') as f:
-            f.write(str(os.getpid()))
-        sheet['C1'].value = 'running'
-
-        while True:
-            if not df.equals(rng.options(pd.DataFrame, index=False).value):
-                rng[1, 1].value = df.values[:, 1:]
-                sheet['B1'].value = dt.datetime.now()
-            time.sleep(2)
+    while True:
+        rng[1, 1].value = streaming_prices.get_snapshot().values[:, 1:]
+        sheet['B1'].value = dt.datetime.now()
+        time.sleep(0.5)
 
 
 if __name__ == '__main__':
-    xw.books.active.set_mock_caller()
+    xw.Book('realtime.xlsx').set_mock_caller()
     main()
