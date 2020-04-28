@@ -1,11 +1,8 @@
 import os
-import signal
 import time
-from pathlib import Path
 import datetime as dt
 from configparser import ConfigParser
 
-import pandas as pd
 import eikon as ek
 import xlwings as xw
 
