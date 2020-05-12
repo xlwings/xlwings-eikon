@@ -1,7 +1,8 @@
 import os
 import eikon as ek
 import xlwings as xw
-from xlwings.reports import create_report  # requires xlwings PRO
+# Requires a license key: https://www.xlwings.org/trial
+from xlwings.pro.reports import create_report
 
 # Please read your Eikon APP_KEY from a config file or environment variable
 ek.set_app_key('YOUR_APP_KEY')
