@@ -1,6 +1,5 @@
 import os
 import math
-from configparser import ConfigParser
 from dateutil.relativedelta import relativedelta
 
 import numpy as np
@@ -11,9 +10,7 @@ import xlwings as xw
 
 def main():
     # Eikon
-    conf = ConfigParser()
-    conf.read(os.path.join(os.path.dirname(__file__), '..', 'eikon.conf'))
-    ek.set_app_key(conf['eikon']['APP_KEY'])
+    ek.set_app_key(os.getenv('EIKON_APP_KEY'))
 
     # Excel
     sheet = xw.Book.caller().sheets[0]
@@ -72,5 +69,5 @@ def main():
 
 if __name__ == '__main__':
     # This part is to run the script directly from Python, not via Excel
-    xw.books.active.set_mock_caller()
+    xw.Book("simulation.py").set_mock_caller()
     main()

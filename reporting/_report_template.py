@@ -1,22 +1,21 @@
 import os
+from pathlib import Path
 import datetime as dt
-from configparser import ConfigParser
 
 import numpy as np
 import eikon as ek
 import xlwings as xw
-from xlwings.reports import create_report  # part of xlwings PRO
+# Requires a license key: https://www.xlwings.org/trial
+from xlwings.pro.reports import create_report
 
 
 def main():
     # Files
     template = xw.Book.caller()
-    report_path = os.path.join(os.path.dirname(__file__), 'report.xlsx')
+    report_path = Path(template.fullname).resolve().parent / 'report.xlsx'
 
     # Eikon setup
-    conf = ConfigParser()
-    conf.read(os.path.join(os.path.dirname(__file__), '..', 'eikon.conf'))
-    ek.set_app_key(conf['eikon']['APP_KEY'])
+    ek.set_app_key(os.getenv('EIKON_APP_KEY'))
 
     # Configuration
     date_format = template.sheets['Config']['date_format'].value
@@ -48,7 +47,7 @@ def main():
                                     fields=['TR.CommonName', 'TR.PriceClose', 'TR.TotalReturnYTD'])
     constituents = constituents.set_index('Company Common Name')
     # Add empty columns so it goes into the desired Excel cells
-    for i in range(0, 6):
+    for i in range(6):
         constituents.insert(loc=i, column='merged' + str(i), value=np.nan)
     constituents = constituents.drop(['Instrument'], axis=1)
     constituents = constituents.rename(columns={"YTD Total Return": "YTD %"})
@@ -81,5 +80,5 @@ def main():
 
 if __name__ == '__main__':
     # This part is to run the script directly from Python, not via Excel
-    xw.books.active.set_mock_caller()
+    xw.Book("report_template.xlsx").set_mock_caller()
     main()
