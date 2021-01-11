@@ -27,7 +27,7 @@ def main():
         with open(pid_file, 'r') as f:
             pid = f.read()
         try:
-            os.kill(int(pid), signal.SIGSTOP)
+            os.kill(int(pid), signal.SIGTERM)
             pid_file.unlink()
         except ProcessLookupError as e:
             os.remove(pid_file)
@@ -56,5 +56,5 @@ def main():
 
 
 if __name__ == '__main__':
-    xw.Book('realtime_eikon.xlsx').set_mock_caller()
+    xw.Book('realtime_rdp.xlsx').set_mock_caller()
     main()

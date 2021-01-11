@@ -19,7 +19,7 @@ def main():
         with open(pid_file, 'r') as f:
             pid = f.read()
         try:
-            os.kill(int(pid), signal.SIGSTOP)
+            os.kill(int(pid), signal.SIGTERM)
             pid_file.unlink()
         except ProcessLookupError as e:
             os.remove(pid_file)
